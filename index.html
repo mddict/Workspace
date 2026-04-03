@@ -43,8 +43,8 @@
 </div>
 <script>
 const STAR_COLOR = '#fff';
-const STAR_SIZE = 2.4;
-const STAR_MIN_SCALE = 0.25;
+const STAR_SIZE = 3;
+const STAR_MIN_SCALE = 0.2;
 const OVERFLOW_THRESHOLD = 50;
 const STAR_COUNT = Math.floor((window.innerWidth + window.innerHeight) / 8);
 
@@ -60,7 +60,7 @@ let pointerX = null;
 let pointerY = null;
 
 let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 };
-const MAX_VELOCITY = 6;
+const MAX_VELOCITY = 10;
 
 generate();
 resize();
@@ -113,6 +113,7 @@ function recycleStar(star) {
   star.z = STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE);
 
   if (direction === 'z') {
+    star.z = 0.1;
     star.x = Math.random() * width;
     star.y = Math.random() * height;
   } else if (direction === 'l') {
@@ -148,15 +149,22 @@ function resize() {
 function step() {
   context.clearRect(0, 0, width, height);
 
-  velocity.tx *= 0.94;
-  velocity.ty *= 0.94;
+  velocity.tx *= 0.96;
+  velocity.ty *= 0.96;
 
-  velocity.x += (velocity.tx - velocity.x) * 0.35;
-  velocity.y += (velocity.ty - velocity.y) * 0.35;
+  velocity.x += (velocity.tx - velocity.x) * 0.8;
+  velocity.y += (velocity.ty - velocity.y) * 0.8;
 
   velocity.x = clamp(velocity.x, -MAX_VELOCITY, MAX_VELOCITY);
   velocity.y = clamp(velocity.y, -MAX_VELOCITY, MAX_VELOCITY);
 
+  updateStars();
+  renderStars();
+
+  requestAnimationFrame(step);
+}
+
+function updateStars() {
   for (const star of stars) {
     star.x += velocity.x * star.z;
     star.y += velocity.y * star.z;
@@ -173,29 +181,43 @@ function step() {
     ) {
       recycleStar(star);
     }
-
-    renderStar(star);
   }
-
-  requestAnimationFrame(step);
 }
 
-function renderStar(star) {
-  let tailX = velocity.x * 2;
-  let tailY = velocity.y * 2;
-
-  if (Math.abs(tailX) < 0.2) tailX = 0.2;
-  if (Math.abs(tailY) < 0.2) tailY = 0.2;
-
-  context.beginPath();
-  context.lineCap = 'round';
-  context.lineWidth = STAR_SIZE * star.z;
-  context.globalAlpha = 0.5 + Math.random() * 0.5;
+function renderStars() {
+  context.save();
   context.strokeStyle = STAR_COLOR;
+  context.lineCap = 'round';
+  context.shadowColor = 'white';
+  context.shadowBlur = 8;
 
-  context.moveTo(star.x, star.y);
-  context.lineTo(star.x + tailX, star.y + tailY);
-  context.stroke();
+  for (const star of stars) {
+    let tailX = velocity.x * 2.2;
+    let tailY = velocity.y * 2.2;
+
+    if (Math.abs(tailX) < 0.5) tailX = 0.5 * Math.sign(velocity.x || 1);
+    if (Math.abs(tailY) < 0.5) tailY = 0.5 * Math.sign(velocity.y || 1);
+
+    context.beginPath();
+    context.lineWidth = STAR_SIZE * star.z * 0.9;
+    context.globalAlpha = 0.55 + Math.random() * 0.45;
+
+    context.moveTo(star.x, star.y);
+    context.lineTo(star.x + tailX, star.y + tailY);
+    context.stroke();
+
+    context.beginPath();
+    context.shadowBlur = 14;
+    context.globalAlpha = 0.12 + Math.random() * 0.18;
+    context.lineWidth = STAR_SIZE * star.z * 2.2;
+    context.moveTo(star.x, star.y);
+    context.lineTo(star.x + tailX, star.y + tailY);
+    context.stroke();
+
+    context.shadowBlur = 8;
+  }
+
+  context.restore();
 }
 
 function movePointer(x, y) {
@@ -203,8 +225,8 @@ function movePointer(x, y) {
     const ox = x - pointerX;
     const oy = y - pointerY;
 
-    velocity.tx += ox / 25;
-    velocity.ty += oy / 25;
+    velocity.tx += ox / 8;
+    velocity.ty += oy / 8;
 
     velocity.tx = clamp(velocity.tx, -MAX_VELOCITY, MAX_VELOCITY);
     velocity.ty = clamp(velocity.ty, -MAX_VELOCITY, MAX_VELOCITY);
@@ -232,6 +254,5 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 </script>
-
 </body>
 </html>

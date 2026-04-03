@@ -4,64 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Moshi Personal Space</title>
+
   <style>
     * {
       box-sizing: border-box;
     }
 
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-    }
-
     body {
-      background-color: #000;
-      background-image:
-        radial-gradient(circle at top right, rgba(121, 68, 154, 0.13), transparent),
-        radial-gradient(circle at 20% 80%, rgba(41, 196, 255, 0.13), transparent);
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
       color: white;
-      position: relative;
-    }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
+      /* gradient background instead of stars */
+      background:
+        radial-gradient(circle at top right, rgba(121,68,154,0.25), transparent),
+        radial-gradient(circle at bottom left, rgba(41,196,255,0.25), transparent),
+        #0a0c14;
 
-    .ui-center {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      pointer-events: none;
     }
 
+    /* center container */
     .window {
       width: min(680px, 92vw);
-      background: #f2f2f2;
-      border: 1.5px solid #9e9e9e;
-      border-radius: 8px;
-      overflow: hidden;
+
+      /* transparent glass effect */
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+
       box-shadow:
-        0 4px 0 rgba(0, 0, 0, 0.08),
-        0 12px 30px rgba(0, 0, 0, 0.18);
+        0 10px 40px rgba(0,0,0,0.4);
+
+      overflow: hidden;
+
+      /* fade in */
       opacity: 0;
-      transform: translateY(16px) scale(0.985);
-      animation: fadeInWindow 0.8s ease forwards;
-      pointer-events: auto;
+      transform: translateY(20px) scale(0.96);
+      animation: fadeIn 0.7s ease forwards;
     }
 
-    @keyframes fadeInWindow {
+    @keyframes fadeIn {
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -69,402 +58,150 @@
     }
 
     .window-bar {
-      height: 42px;
-      background: #464646;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 18px;
-      font-size: 18px;
-      text-transform: lowercase;
+      background: rgba(0,0,0,0.5);
+      padding: 12px 18px;
+      font-size: 16px;
+      color: #ccc;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .window-body {
-      min-height: 360px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 42px 28px 34px;
+      padding: 50px 30px;
       text-align: center;
     }
 
     .title {
-      margin: 0;
-      font-size: clamp(40px, 7vw, 72px);
-      line-height: 1;
+      font-size: clamp(42px, 7vw, 72px);
       font-weight: 300;
-      color: #474747;
-      letter-spacing: -0.04em;
+      margin: 0;
+      letter-spacing: -0.03em;
     }
 
     .title span {
-      color: #f29a11;
+      color: #ffb347;
       font-weight: 700;
     }
 
     .subtitle {
-      margin: 12px 0 30px;
-      color: #727272;
-      font-size: clamp(18px, 2.2vw, 24px);
-      font-weight: 400;
+      margin-top: 12px;
+      margin-bottom: 40px;
+      color: rgba(255,255,255,0.7);
+      font-size: 20px;
     }
 
     .icons {
       display: flex;
       justify-content: center;
-      gap: 34px;
-      flex-wrap: wrap;
+      gap: 40px;
     }
 
     .icon-link {
-      color: #535353;
       text-decoration: none;
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      transition: transform 0.18s ease;
+      transition: transform 0.2s;
     }
 
     .icon-link:hover {
-      transform: translateY(-4px);
+      transform: translateY(-5px);
     }
 
     .icon-box {
-      width: 72px;
-      height: 72px;
-      border: 2px solid #7b7b7b;
-      border-radius: 18px;
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 30px;
-      background: #fafafa;
-      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+      background: rgba(255,255,255,0.05);
     }
 
     .icon-label {
-      font-size: 15px;
-      font-weight: 700;
-      text-transform: lowercase;
-      color: #4f4f4f;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
     }
 
+    /* music toggle */
     .toolbar {
       position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 20;
-      display: flex;
-      gap: 10px;
+      top: 16px;
+      left: 16px;
     }
 
     .tool-btn {
-      width: 42px;
-      height: 42px;
+      background: rgba(255,255,255,0.1);
       border: none;
-      background: transparent;
-      color: #fff;
-      font-size: 26px;
+      color: white;
+      font-size: 22px;
+      padding: 10px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      opacity: 0.92;
+      backdrop-filter: blur(10px);
     }
 
     .tool-btn:hover {
-      transform: scale(1.08);
-      opacity: 1;
+      background: rgba(255,255,255,0.2);
     }
 
-    @media (max-width: 560px) {
-      .window-body {
-        min-height: 320px;
-        padding: 34px 18px 26px;
-      }
-
-      .icon-box {
-        width: 64px;
-        height: 64px;
-        font-size: 26px;
-      }
-
-      .icons {
-        gap: 24px;
-      }
+    audio {
+      display: none;
     }
   </style>
 </head>
+
 <body>
-  <canvas></canvas>
 
   <div class="toolbar">
-    <button class="tool-btn" id="musicToggle" title="toggle music">⭐</button>
+    <button id="musicToggle" class="tool-btn">🔊</button>
   </div>
 
-  <div class="ui-center">
-    <div class="window">
-      <div class="window-bar">home</div>
+  <div class="window">
+    <div class="window-bar">home</div>
 
-      <div class="window-body">
-        <h1 class="title">hi! i’m <span>moshi</span></h1>
-        <p class="subtitle">moshi personal space · programmer</p>
+    <div class="window-body">
+      <h1 class="title">hi! i’m <span>moshi</span></h1>
+      <div class="subtitle">moshi personal space · programmer</div>
 
-        <div class="icons">
-          <a class="icon-link" href="https://discord.com/" target="_blank" rel="noopener noreferrer">
-            <div class="icon-box">💬</div>
-            <div class="icon-label">discord</div>
-          </a>
+      <div class="icons">
+        <a class="icon-link" href="https://discord.com/" target="_blank">
+          <div class="icon-box">💬</div>
+          <div class="icon-label">discord</div>
+        </a>
 
-          <a class="icon-link" href="https://github.com/" target="_blank" rel="noopener noreferrer">
-            <div class="icon-box">💻</div>
-            <div class="icon-label">github</div>
-          </a>
-        </div>
+        <a class="icon-link" href="https://github.com/" target="_blank">
+          <div class="icon-box">💻</div>
+          <div class="icon-label">github</div>
+        </a>
       </div>
     </div>
   </div>
 
   <audio id="bgMusic" loop>
-    <source src="music.mp3" type="audio/mpeg" />
+    <source src="music.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const STAR_COLOR = "#fff";
-    const STAR_SIZE = 3;
-    const STAR_MIN_SCALE = 0.2;
-    const OVERFLOW_THRESHOLD = 50;
-    const STAR_COUNT = Math.floor((window.innerWidth + window.innerHeight) / 8);
-
-    const canvas = document.querySelector("canvas");
-    const context = canvas.getContext("2d");
-
-    let scale = 1;
-    let width;
-    let height;
-
-    let stars = [];
-
-    let pointerX = null;
-    let pointerY = null;
-
-    let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 };
-
-    const MAX_VELOCITY = 8;
-    let touchInput = false;
-
-    generate();
-    resize();
-    step();
-
-    window.addEventListener("resize", resize);
-    window.addEventListener("mousemove", onMouseMove, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onPointerLeave, { passive: true });
-    window.addEventListener("mouseleave", onPointerLeave);
-
-    function generate() {
-      stars = [];
-
-      for (let i = 0; i < STAR_COUNT; i++) {
-        stars.push({
-          x: 0,
-          y: 0,
-          z: STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE)
-        });
-      }
-    }
-
-    function placeStar(star) {
-      star.x = Math.random() * width;
-      star.y = Math.random() * height;
-    }
-
-    function recycleStar(star) {
-      let direction = "z";
-
-      const vx = Math.abs(velocity.x);
-      const vy = Math.abs(velocity.y);
-
-      if (vx > 1 || vy > 1) {
-        let axis;
-
-        if (vx > vy) {
-          axis = Math.random() < vx / (vx + vy) ? "h" : "v";
-        } else {
-          axis = Math.random() < vy / (vx + vy) ? "v" : "h";
-        }
-
-        if (axis === "h") {
-          direction = velocity.x > 0 ? "l" : "r";
-        } else {
-          direction = velocity.y > 0 ? "t" : "b";
-        }
-      }
-
-      star.z = STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE);
-
-      if (direction === "z") {
-        star.z = 0.1;
-        star.x = Math.random() * width;
-        star.y = Math.random() * height;
-      } else if (direction === "l") {
-        star.x = -OVERFLOW_THRESHOLD;
-        star.y = Math.random() * height;
-      } else if (direction === "r") {
-        star.x = width + OVERFLOW_THRESHOLD;
-        star.y = Math.random() * height;
-      } else if (direction === "t") {
-        star.x = Math.random() * width;
-        star.y = -OVERFLOW_THRESHOLD;
-      } else if (direction === "b") {
-        star.x = Math.random() * width;
-        star.y = height + OVERFLOW_THRESHOLD;
-      }
-    }
-
-    function resize() {
-      scale = window.devicePixelRatio || 1;
-      width = window.innerWidth * scale;
-      height = window.innerHeight * scale;
-
-      canvas.width = width;
-      canvas.height = height;
-
-      stars.forEach(placeStar);
-    }
-
-    function step() {
-      context.clearRect(0, 0, width, height);
-
-      update();
-      render();
-
-      requestAnimationFrame(step);
-    }
-
-    function update() {
-      velocity.tx *= 0.96;
-      velocity.ty *= 0.96;
-
-      velocity.tx = clamp(velocity.tx, -MAX_VELOCITY, MAX_VELOCITY);
-      velocity.ty = clamp(velocity.ty, -MAX_VELOCITY, MAX_VELOCITY);
-
-      velocity.x += (velocity.tx - velocity.x) * 0.8;
-      velocity.y += (velocity.ty - velocity.y) * 0.8;
-
-      velocity.x = clamp(velocity.x, -MAX_VELOCITY, MAX_VELOCITY);
-      velocity.y = clamp(velocity.y, -MAX_VELOCITY, MAX_VELOCITY);
-
-      stars.forEach((star) => {
-        star.x += velocity.x * star.z;
-        star.y += velocity.y * star.z;
-
-        star.x += (star.x - width / 2) * velocity.z * star.z;
-        star.y += (star.y - height / 2) * velocity.z * star.z;
-        star.z += velocity.z;
-
-        if (
-          star.x < -OVERFLOW_THRESHOLD ||
-          star.x > width + OVERFLOW_THRESHOLD ||
-          star.y < -OVERFLOW_THRESHOLD ||
-          star.y > height + OVERFLOW_THRESHOLD
-        ) {
-          recycleStar(star);
-        }
-      });
-    }
-
-    function render() {
-      context.save();
-      context.strokeStyle = STAR_COLOR;
-      context.lineCap = "round";
-      context.shadowColor = "#fff";
-      context.shadowBlur = 8;
-
-      stars.forEach((star) => {
-        let tailX = velocity.x * 2;
-        let tailY = velocity.y * 2;
-
-        if (Math.abs(tailX) < 0.1) tailX = 0.5;
-        if (Math.abs(tailY) < 0.1) tailY = 0.5;
-
-        context.beginPath();
-        context.lineWidth = STAR_SIZE * star.z * scale;
-        context.globalAlpha = 0.5 + 0.5 * Math.random();
-        context.moveTo(star.x, star.y);
-        context.lineTo(star.x + tailX, star.y + tailY);
-        context.stroke();
-
-        context.beginPath();
-        context.shadowBlur = 14;
-        context.globalAlpha = 0.12 + 0.16 * Math.random();
-        context.lineWidth = STAR_SIZE * star.z * scale * 2;
-        context.moveTo(star.x, star.y);
-        context.lineTo(star.x + tailX, star.y + tailY);
-        context.stroke();
-
-        context.shadowBlur = 8;
-      });
-
-      context.restore();
-    }
-
-    function movePointer(x, y) {
-      if (typeof pointerX === "number" && typeof pointerY === "number") {
-        const ox = x - pointerX;
-        const oy = y - pointerY;
-
-        velocity.tx += (ox / (8 * scale)) * (touchInput ? 1 : -1);
-        velocity.ty += (oy / (8 * scale)) * (touchInput ? 1 : -1);
-
-        velocity.tx = clamp(velocity.tx, -MAX_VELOCITY, MAX_VELOCITY);
-        velocity.ty = clamp(velocity.ty, -MAX_VELOCITY, MAX_VELOCITY);
-      }
-
-      pointerX = x;
-      pointerY = y;
-    }
-
-    function onMouseMove(event) {
-      touchInput = false;
-      movePointer(event.clientX * scale, event.clientY * scale);
-    }
-
-    function onTouchMove(event) {
-      touchInput = true;
-      movePointer(event.touches[0].clientX * scale, event.touches[0].clientY * scale);
-      event.preventDefault();
-    }
-
-    function onPointerLeave() {
-      pointerX = null;
-      pointerY = null;
-    }
-
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
-
     const music = document.getElementById("bgMusic");
-    const musicToggle = document.getElementById("musicToggle");
-    let isPlaying = false;
+    const btn = document.getElementById("musicToggle");
+    let playing = false;
 
-    musicToggle.addEventListener("click", async () => {
-      try {
-        if (!isPlaying) {
-          await music.play();
-          musicToggle.textContent = "✨";
-          isPlaying = true;
-        } else {
-          music.pause();
-          musicToggle.textContent = "⭐";
-          isPlaying = false;
-        }
-      } catch (error) {
-        console.log("Audio play blocked until user interacts more:", error);
+    btn.addEventListener("click", async () => {
+      if (!playing) {
+        await music.play();
+        btn.textContent = "🔈";
+        playing = true;
+      } else {
+        music.pause();
+        btn.textContent = "🔊";
+        playing = false;
       }
     });
   </script>
+
 </body>
 </html>

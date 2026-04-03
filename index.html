@@ -41,13 +41,12 @@
   <h1>Hello</h1>
   <p>Welcome to my space.</p>
 </div>
-
 <script>
 const STAR_COLOR = '#fff';
-const STAR_SIZE = 2.2;
+const STAR_SIZE = 2.4;
 const STAR_MIN_SCALE = 0.25;
 const OVERFLOW_THRESHOLD = 50;
-const STAR_COUNT = Math.floor((window.innerWidth + window.innerHeight) / 10);
+const STAR_COUNT = Math.floor((window.innerWidth + window.innerHeight) / 8);
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
@@ -60,8 +59,8 @@ let stars = [];
 let pointerX = null;
 let pointerY = null;
 
-let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.00015 };
-let touchInput = false;
+let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 };
+const MAX_VELOCITY = 6;
 
 generate();
 resize();
@@ -77,8 +76,8 @@ function generate() {
   stars = [];
   for (let i = 0; i < STAR_COUNT; i++) {
     stars.push({
-      x: Math.random(),
-      y: Math.random(),
+      x: 0,
+      y: 0,
       z: STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE)
     });
   }
@@ -95,8 +94,9 @@ function recycleStar(star) {
   const vx = Math.abs(velocity.x);
   const vy = Math.abs(velocity.y);
 
-  if (vx > 0.3 || vy > 0.3) {
+  if (vx > 1 || vy > 1) {
     let axis;
+
     if (vx > vy) {
       axis = Math.random() < vx / (vx + vy) ? 'h' : 'v';
     } else {
@@ -124,7 +124,7 @@ function recycleStar(star) {
   } else if (direction === 't') {
     star.x = Math.random() * width;
     star.y = -OVERFLOW_THRESHOLD;
-  } else if (direction === 'b') {
+  } else {
     star.x = Math.random() * width;
     star.y = height + OVERFLOW_THRESHOLD;
   }
@@ -148,11 +148,14 @@ function resize() {
 function step() {
   context.clearRect(0, 0, width, height);
 
-  velocity.tx *= 0.92;
-  velocity.ty *= 0.92;
+  velocity.tx *= 0.94;
+  velocity.ty *= 0.94;
 
-  velocity.x += (velocity.tx - velocity.x) * 0.08;
-  velocity.y += (velocity.ty - velocity.y) * 0.08;
+  velocity.x += (velocity.tx - velocity.x) * 0.35;
+  velocity.y += (velocity.ty - velocity.y) * 0.35;
+
+  velocity.x = clamp(velocity.x, -MAX_VELOCITY, MAX_VELOCITY);
+  velocity.y = clamp(velocity.y, -MAX_VELOCITY, MAX_VELOCITY);
 
   for (const star of stars) {
     star.x += velocity.x * star.z;
@@ -160,6 +163,7 @@ function step() {
 
     star.x += (star.x - width / 2) * velocity.z * star.z;
     star.y += (star.y - height / 2) * velocity.z * star.z;
+    star.z += velocity.z;
 
     if (
       star.x < -OVERFLOW_THRESHOLD ||
@@ -177,21 +181,20 @@ function step() {
 }
 
 function renderStar(star) {
-  const tailX = velocity.x * 1.5;
-  const tailY = velocity.y * 1.5;
-  const size = STAR_SIZE * star.z;
+  let tailX = velocity.x * 2;
+  let tailY = velocity.y * 2;
+
+  if (Math.abs(tailX) < 0.2) tailX = 0.2;
+  if (Math.abs(tailY) < 0.2) tailY = 0.2;
 
   context.beginPath();
   context.lineCap = 'round';
-  context.lineWidth = size;
+  context.lineWidth = STAR_SIZE * star.z;
+  context.globalAlpha = 0.5 + Math.random() * 0.5;
   context.strokeStyle = STAR_COLOR;
-  context.globalAlpha = 0.7;
 
   context.moveTo(star.x, star.y);
-  context.lineTo(
-    star.x + (Math.abs(tailX) < 0.15 ? 0.15 : tailX),
-    star.y + (Math.abs(tailY) < 0.15 ? 0.15 : tailY)
-  );
+  context.lineTo(star.x + tailX, star.y + tailY);
   context.stroke();
 }
 
@@ -200,8 +203,11 @@ function movePointer(x, y) {
     const ox = x - pointerX;
     const oy = y - pointerY;
 
-    velocity.tx += (ox / 120);
-    velocity.ty += (oy / 120);
+    velocity.tx += ox / 25;
+    velocity.ty += oy / 25;
+
+    velocity.tx = clamp(velocity.tx, -MAX_VELOCITY, MAX_VELOCITY);
+    velocity.ty = clamp(velocity.ty, -MAX_VELOCITY, MAX_VELOCITY);
   }
 
   pointerX = x;
@@ -209,12 +215,10 @@ function movePointer(x, y) {
 }
 
 function onMouseMove(e) {
-  touchInput = false;
   movePointer(e.clientX, e.clientY);
 }
 
 function onTouchMove(e) {
-  touchInput = true;
   movePointer(e.touches[0].clientX, e.touches[0].clientY);
   e.preventDefault();
 }
@@ -222,8 +226,10 @@ function onTouchMove(e) {
 function resetPointer() {
   pointerX = null;
   pointerY = null;
-  velocity.tx = 0;
-  velocity.ty = 0;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 </script>
 

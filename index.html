@@ -4,35 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- your css -->
     <link rel="stylesheet" href="style.css">
 
     <title>Moshi Personal Space</title>
 </head>
 
 <body>
-
     <canvas></canvas>
-
-    <!-- music button -->
     <div class="toolbar">
         <button id="musicToggle" class="tool-btn">🔊</button>
     </div>
-
-    <!-- center UI -->
     <div class="ui-center">
         <div class="window">
-
             <div class="window-bar">home</div>
-
             <div class="window-body">
-
                 <div class="about-left">
                     <h1 class="title">About Me</h1>
-
                     <div class="about-text">
                         <p>
                             I’m a passionate programmer and game developer who enjoys building
@@ -43,14 +31,12 @@
                             I focus on making clean, efficient code and turning ideas into
                             real projects, especially in game development.
                         </p>
-
                         <p>
                             I’m always learning and pushing myself to improve and create
                             better things.
                         </p>
                     </div>
                 </div>
-
                 <div class="about-right">
                     <div class="pixel-cat">🐱</div>
                 </div>
@@ -59,34 +45,27 @@
 
         </div>
     </div>
-
-    <!-- music -->
-    <audio id="bgMusic" loop>
+    <!--<audio id="bgMusic" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
-
-    <!-- ⭐ YOUR STAR SCRIPT (UNCHANGED) -->
+    -->
     <script>
         const STAR_COLOR = '#fff';
         const STAR_SIZE = 3;
         const STAR_MIN_SCALE = 0.2;
         const OVERFLOW_THRESHOLD = 50;
         const STAR_COUNT = ( window.innerWidth + window.innerHeight ) / 8;
-
         const canvas = document.querySelector( 'canvas' ),
             context = canvas.getContext( '2d' );
-
+        
         let scale = 1,
             width,
             height;
-
         let stars = [];
-
         let pointerX,
             pointerY;
 
         let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 };
-
         let touchInput = false;
 
         generate();
@@ -108,12 +87,10 @@
                 });
             }
         }
-
         function placeStar( star ) {
             star.x = Math.random() * width;
             star.y = Math.random() * height;
         }
-
         function recycleStar( star ) {
             let direction = 'z';
             let vx = Math.abs( velocity.x ),
@@ -132,9 +109,7 @@
                 if( axis === 'h' ) direction = velocity.x > 0 ? 'l' : 'r';
                 else direction = velocity.y > 0 ? 't' : 'b';
             }
-
             star.z = STAR_MIN_SCALE + Math.random() * ( 1 - STAR_MIN_SCALE );
-
             if( direction === 'z' ) {
                 star.z = 0.1;
                 star.x = Math.random() * width;
@@ -166,14 +141,12 @@
             canvas.height = height;
             stars.forEach( placeStar );
         }
-
         function step() {
             context.clearRect( 0, 0, width, height );
             update();
             render();
             requestAnimationFrame( step );
         }
-
         function update() {
             velocity.tx *= 0.96;
             velocity.ty *= 0.96;
@@ -250,22 +223,23 @@
             pointerY = null;
         }
 
-        // music toggle
-        //const music = document.getElementById("bgMusic");
-        //const btn = document.getElementById("musicToggle");
-        //let playing = false;
+        
+        /* const music = document.getElementById("bgMusic");
+        const btn = document.getElementById("musicToggle");
+        let playing = false;
 
-        //btn.onclick = async () => {
-            //if (!playing) {
-                //await music.play();
-               //btn.textContent = "🔈";
-                //playing = true;
-            //} else {
-                //music.pause();
-                //btn.textContent = "🔊";
-               //playing = false;
-            //}
-        //};
+        btn.onclick = async () => {
+            if (!playing) {
+                await music.play();
+                btn.textContent = "🔈";
+                playing = true;
+            } else {
+                music.pause();
+                btn.textContent = "🔊";
+                playing = false;
+            }
+        }*/
+       
     </script>
 
 </body>

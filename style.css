@@ -1,59 +1,119 @@
-body {
+* {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
-  padding: 0;
-  background: #090a0f; 
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #000;
+  background-image:
+    radial-gradient(circle at top right, rgba(121,68,154,0.13), transparent),
+    radial-gradient(circle at 20% 80%, rgba(41,196,255,0.13), transparent);
   color: white;
 }
 
-.stars-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+/* stars */
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
 }
 
-.main-content {
-  position: absolute;
-  top: 50px;
-  left: 50px;
+/* music */
+.toolbar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+}
+
+.tool-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* center box */
+.ui-center {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 10;
 }
 
-.stars {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  background: transparent;
-  box-shadow: 
-    10vw 20vh #fff, 25vw 40vh #fff, 80vw 15vh #fff, 
-    50vw 80vh #fff, 90vw 70vh #fff, 15vw 90vh #fff,
-    40vw 30vh #fff, 70vw 60vh #fff, 5vw 50vh #fff,
-    60vw 10vh #fff, 35vw 75vh #fff, 85vw 35vh #fff;
-  animation: moveStars 50s linear infinite;
+.window {
+  width: min(760px, 94vw);
+  border-radius: 16px;
+  overflow: hidden;
+
+  background: rgba(15, 22, 35, 0.5);
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 20px 50px rgba(0,0,0,0.5);
+
+  animation: fadeIn 0.8s ease forwards;
 }
 
-.stars2 {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: transparent;
-  box-shadow: 
-    15vw 15vh #fff, 45vw 60vh #fff, 75vw 25vh #fff, 
-    5vw 85vh #fff, 95vw 45vh #fff, 30vw 35vh #fff,
-    65vw 75vh #fff, 85vw 90vh #fff, 55vw 5vh #fff;
-  animation: moveStars 100s linear infinite;
-}
-
-@keyframes moveStars {
+@keyframes fadeIn {
   from {
-    transform: translateY(0px);
+    opacity: 0;
+    transform: translateY(16px);
   }
   to {
-    transform: translateY(-100vh);
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.window-bar {
+  background: rgba(10,14,24,0.7);
+  padding: 12px 18px;
+}
+
+.window-body {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+}
+
+.about-left {
+  flex: 1;
+}
+
+.title {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.about-text p {
+  margin-bottom: 16px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.8);
+}
+
+.about-right {
+  display: flex;
+  align-items: center;
+}
+
+.pixel-cat {
+  font-size: 100px;
 }

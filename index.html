@@ -1,207 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moshi Personal Space</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moshi Personal Space</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color: white;
+        body {
+            background-color: #000;
+            background-image:
+                radial-gradient(circle at top right, rgba(121, 68, 154, 0.13), transparent),
+                radial-gradient(circle at 20% 80%, rgba(41, 196, 255, 0.13), transparent);
+            color: white;
+            position: relative;
+        }
 
-      /* gradient background instead of stars */
-      background:
-        radial-gradient(circle at top right, rgba(121,68,154,0.25), transparent),
-        radial-gradient(circle at bottom left, rgba(41,196,255,0.25), transparent),
-        #0a0c14;
+        canvas {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            inset: 0;
+            z-index: 0;
+        }
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        .toolbar {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 20;
+        }
 
-    /* center container */
-    .window {
-      width: min(680px, 92vw);
+        .tool-btn {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform .15s ease, background .15s ease;
+        }
 
-      /* transparent glass effect */
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+        .tool-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.14);
+        }
 
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 14px;
+        .ui-center {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            pointer-events: none;
+        }
 
-      box-shadow:
-        0 10px 40px rgba(0,0,0,0.4);
+        .window {
+            width: min(660px, 92vw);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(51, 67, 96, 0.42);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04) inset,
+                0 18px 40px rgba(0,0,0,0.35);
+            opacity: 0;
+            transform: translateY(16px) scale(0.985);
+            animation: fadeInWindow 0.8s ease forwards;
+            pointer-events: auto;
+        }
 
-      overflow: hidden;
+        @keyframes fadeInWindow {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-      /* fade in */
-      opacity: 0;
-      transform: translateY(20px) scale(0.96);
-      animation: fadeIn 0.7s ease forwards;
-    }
+        .window-bar {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            background: rgba(10, 14, 24, 0.72);
+            color: rgba(255,255,255,0.92);
+            font-size: 15px;
+            text-transform: lowercase;
+            letter-spacing: 0.2px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
 
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+        .window-body {
+            min-height: 255px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 42px 28px;
+        }
 
-    .window-bar {
-      background: rgba(0,0,0,0.5);
-      padding: 12px 18px;
-      font-size: 16px;
-      color: #ccc;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+        .title {
+            margin: 0;
+            font-size: clamp(52px, 8vw, 72px);
+            line-height: 1;
+            font-weight: 300;
+            color: rgba(255,255,255,0.95);
+            letter-spacing: -0.04em;
+        }
 
-    .window-body {
-      padding: 50px 30px;
-      text-align: center;
-    }
+        .subtitle {
+            margin-top: 22px;
+            font-size: clamp(16px, 2vw, 20px);
+            color: rgba(255,255,255,0.68);
+            font-weight: 600;
+        }
 
-    .title {
-      font-size: clamp(42px, 7vw, 72px);
-      font-weight: 300;
-      margin: 0;
-      letter-spacing: -0.03em;
-    }
+        audio {
+            display: none;
+        }
 
-    .title span {
-      color: #ffb347;
-      font-weight: 700;
-    }
+        @media (max-width: 560px) {
+            .window-body {
+                min-height: 220px;
+                padding: 36px 18px;
+            }
 
-    .subtitle {
-      margin-top: 12px;
-      margin-bottom: 40px;
-      color: rgba(255,255,255,0.7);
-      font-size: 20px;
-    }
-
-    .icons {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-    }
-
-    .icon-link {
-      text-decoration: none;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.2s;
-    }
-
-    .icon-link:hover {
-      transform: translateY(-5px);
-    }
-
-    .icon-box {
-      width: 70px;
-      height: 70px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      background: rgba(255,255,255,0.05);
-    }
-
-    .icon-label {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-    }
-
-    /* music toggle */
-    .toolbar {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-    }
-
-    .tool-btn {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: white;
-      font-size: 22px;
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-    }
-
-    .tool-btn:hover {
-      background: rgba(255,255,255,0.2);
-    }
-
-    audio {
-      display: none;
-    }
-  </style>
+            .window {
+                width: 94vw;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <canvas></canvas>
 
-  <div class="toolbar">
-    <button id="musicToggle" class="tool-btn">🔊</button>
-  </div>
-
-  <div class="window">
-    <div class="window-bar">home</div>
-
-    <div class="window-body">
-      <h1 class="title">hi! i’m <span>moshi</span></h1>
-      <div class="subtitle">moshi personal space · programmer</div>
-
-      <div class="icons">
-        <a class="icon-link" href="https://discord.com/" target="_blank">
-          <div class="icon-box">💬</div>
-          <div class="icon-label">discord</div>
-        </a>
-
-        <a class="icon-link" href="https://github.com/" target="_blank">
-          <div class="icon-box">💻</div>
-          <div class="icon-label">github</div>
-        </a>
-      </div>
+    <div class="toolbar">
+        <button id="musicToggle" class="tool-btn" title="toggle music">🔊</button>
     </div>
-  </div>
 
-  <audio id="bgMusic" loop>
-    <source src="music.mp3" type="audio/mpeg">
-  </audio>
+    <div class="ui-center">
+        <div class="window">
+            <div class="window-bar">home</div>
+            <div class="window-body">
+                <h1 class="title">Welcome</h1>
+                <div class="subtitle">moshi personal space · programmer</div>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    const music = document.getElementById("bgMusic");
-    const btn = document.getElementById("musicToggle");
-    let playing = false;
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
 
-    btn.addEventListener("click", async () => {
-      if (!playing) {
-        await music.play();
-        btn.textContent = "🔈";
-        playing = true;
-      } else {
-        music.pause();
-        btn.textContent = "🔊";
-        playing = false;
-      }
-    });
-  </script>
+    <script>
+        /*          *     .        *  .    *    *   .
+         .  *  move your mouse to over the stars   .
+         *  .  .   change these values:   .  *
+           .      * .        .          * .       */
+        const STAR_COLOR = '#fff';
+        const STAR_SIZE = 3;
+        const STAR_MIN_SCALE = 0.2;
+        const OVERFLOW_THRESHOLD = 50;
+        const STAR_COUNT = ( window.innerWidth + window.innerHeight ) / 8;
 
+        const canvas = document.querySelector( 'canvas' ),
+            context = canvas.getContext( '2d' );
+
+        let scale = 1, // device pixel ratio
+            width,
+            height;
+
+        let stars = [];
+
+        let pointerX,
+            pointerY;
+
+        let velocity = { x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 };
+
+        let touchInput = false;
+
+        generate();
+        resize();
+        step();
+
+        window.onresize = resize;
+        canvas.onmousemove = onMouseMove;
+        canvas.ontouchmove = onTouchMove;
+        canvas.ontouchend = onMouseLeave;
+        document.onmouseleave = onMouseLeave;
+
+        function generate() {
+
+            for( let i = 0; i < STAR_COUNT; i++ ) {
+                stars.push({
+                    x: 0,
+                    y: 0,
+                    z: STAR_MIN_SCALE + Math.random() * ( 1 - STAR_MIN_SCALE )
+                });
+            }
+
+        }
+
+        function placeStar( star ) {
+
+            star.x = Math.random() * width;
+            star.y = Math.random() * height;
+
+        }
+
+        function recycleStar( star ) {
+
+            let direction = 'z';
+
+            let vx = Math.abs( velocity.x ),
+                vy = Math.abs( velocity.y );
+
+            if( vx > 1 || vy > 1 ) {
+                let axis;
+
+                if( vx > vy ) {
+                    axis = Math.random() < vx / ( vx + vy ) ? 'h' : 'v';
+                }
+                else {
+                    axis = Math.random() < vy / ( vx + vy ) ? 'v' : 'h';
+                }
+
+                if( axis === 'h' ) {
+                    direction = velocity.x > 0 ? 'l' : 'r';
+                }
+                else {
+                    direction = velocity.y > 0 ? 't' : 'b';
+                }
+            }
+
+            star.z = STAR_MIN_SCALE + Math.random() * ( 1 - STAR_MIN_SCALE );
+
+            if( direction === 'z' ) {
+                star.z = 0.1;
+                star.x = Math.random() * width;
+                star.y = Math.random() * height;
+            }
+            else if( direction === 'l' ) {
+                star.x = -OVERFLOW_THRESHOLD;
+                star.y = height * Math.random();
+            }
+            else if( direction === 'r' ) {
+                star.x = width + OVERFLOW_THRESHOLD;
+                star.y = height * Math.random();
+            }
+            else if( direction === 't' ) {
+                star.x = width * Math.random();
+                star.y = -OVERFLOW_THRESHOLD;
+            }
+            else if( direction === 'b' ) {
+                star.x = width * Math.random();
+                star.y = height + OVERFLOW_THRESHOLD;
+            }
+
+        }
+
+        function resize() {
+
+            scale = window.devicePixelRatio || 1;
+
+            width = window.innerWidth * scale;
+            height = window.innerHeight * scale;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            stars.forEach( placeStar );
+
+        }
+
+        function step() {
+
+            context.clearRect( 0, 0, width, height );
+
+            update();
+            render();
+
+            requestAnimationFrame( step );
+
+        }
+
+        function update() {
+
+            velocity.tx *= 0.96;
+            velocity.ty *= 0.96;
+
+            velocity.x += ( velocity.tx - velocity.x ) * 0.8;
+            velocity.y += ( velocity.ty - velocity.y ) * 0.8;
+
+            stars.forEach( ( star ) => {
+
+                star.x += velocity.x * star.z;
+                star.y += velocity.y * star.z;
+
+                star.x += ( star.x - width/2 ) * velocity.z * star.z;
+                star.y += ( star.y - height/2 ) * velocity.z * star.z;
+                star.z += velocity.z;
+
+                // recycle when out of bounds
+                if( star.x < -OVERFLOW_THRESHOLD || star.x > width + OVERFLOW_THRESHOLD || star.y < -OVERFLOW_THRESHOLD || star.y > height + OVERFLOW_THRESHOLD ) {
+                    recycleStar( star );
+                }
+
+            } );
+
+        }
+
+        function render() {
+
+            stars.forEach( ( star ) => {
+
+                context.beginPath();
+                context.lineCap = 'round';
+                context.lineWidth = STAR_SIZE * star.z * scale;
+                context.globalAlpha = 0.5 + 0.5*Math.random();
+                context.strokeStyle = STAR_COLOR;
+
+                context.beginPath();
+                context.moveTo( star.x, star.y );
+
+                var tailX = velocity.x * 2,
+                    tailY = velocity.y * 2;
+
+                // stroke() wont work on an invisible line
+                if( Math.abs( tailX ) < 0.1 ) tailX = 0.5;
+                if( Math.abs( tailY ) < 0.1 ) tailY = 0.5;
+
+                context.lineTo( star.x + tailX, star.y + tailY );
+
+                context.stroke();
+
+            } );
+
+        }
+
+        function movePointer( x, y ) {
+
+            if( typeof pointerX === 'number' && typeof pointerY === 'number' ) {
+
+                let ox = x - pointerX,
+                    oy = y - pointerY;
+
+                velocity.tx = velocity.tx + ( ox / 8*scale ) * ( touchInput ? 1 : -1 );
+                velocity.ty = velocity.ty + ( oy / 8*scale ) * ( touchInput ? 1 : -1 );
+
+            }
+
+            pointerX = x;
+            pointerY = y;
+
+        }
+
+        function onMouseMove( event ) {
+
+            touchInput = false;
+
+            movePointer( event.clientX, event.clientY );
+
+        }
+
+        function onTouchMove( event ) {
+
+            touchInput = true;
+
+            movePointer( event.touches[0].clientX, event.touches[0].clientY, true );
+
+            event.preventDefault();
+
+        }
+
+        function onMouseLeave() {
+
+            pointerX = null;
+            pointerY = null;
+
+        }
+
+        const music = document.getElementById("bgMusic");
+        const musicToggle = document.getElementById("musicToggle");
+        let isPlaying = false;
+
+        musicToggle.addEventListener("click", async () => {
+            try {
+                if (!isPlaying) {
+                    await music.play();
+                    musicToggle.textContent = "🔈";
+                    isPlaying = true;
+                } else {
+                    music.pause();
+                    musicToggle.textContent = "🔊";
+                    isPlaying = false;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    </script>
 </body>
 </html>
